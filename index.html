@@ -27,14 +27,14 @@
                             <li class="accordion-item is-active" data-accordion-item>
                                 <a href="#" class="accordion-title">Create Contract</a>
                                 <div class="accordion-content" data-tab-content>
-                                    <label>Minimum Entry Fee:
-                                        <input id="entryFeeContract" type="number" placeholder="100">
+                                    <label>Minimum Entry Fee (in ether):
+                                        <input id="entryFeeContract" type="number" placeholder="100" value="1">
                                     </label>
                                     <label>Project Proposal Deadline (Seconds from now):
-                                        <input id="proposalDeadline" type="number" placeholder="50">
+                                        <input id="proposalDeadline" type="number" placeholder="50" value="50">
                                     </label>
                                     <label>Campaign Deadline (Seconds from now):
-                                        <input id="campaignDeadline" type="number" placeholder="100">
+                                        <input id="campaignDeadline" type="number" placeholder="100" value="100">
                                     </label>
                                     <button id="contractBtn" type="button" class="success button expanded">Create</button>
                                 </div>
@@ -52,8 +52,8 @@
                                     <label>URL:
                                         <input id="projectURL" type="text" placeholder="https://www.coolproject.com">
                                     </label>
-                                    <label>Entry Fee:
-                                        <input id="entryFeeProject" type="number" placeholder="100">
+                                    <label>Entry Fee (in ether):
+                                        <input id="entryFeeProject" type="number" placeholder="5">
                                     </label>
                                     <button id="submitBtn" type="button" class="success button expanded">Submit</button>
                                 </div>
@@ -68,8 +68,8 @@
                                     <label>Address:
                                         <input id="supportAddr" type="text" placeholder="addr">
                                     </label>
-                                    <label>Amount:
-                                        <input id="supportAmount" type="number" placeholder="100">
+                                    <label>Amount (in ether):
+                                        <input id="supportAmount" type="number" placeholder="5">
                                     </label>
                                     <button id="supportBtn" type="button" class="success button expanded">Support</button>
                                 </div>
