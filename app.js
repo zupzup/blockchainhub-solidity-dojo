@@ -41,6 +41,46 @@ function parseCurrency(cb, f, prefix) {
     });
 }
 
+function getAyncProjects(cb, f, prefix) {
+    f(function(err, data) {
+        if (!err && data) {
+            var numProjects = web3.toDecimal(data);
+            if (numProjects === 0) {
+                cb(null, prefix + numProjects);
+            } else {
+                var indices = [];
+                for(var i = 0; i<numProjects; i++) {
+                    indices.push(i);
+                }
+                async.map(indices, function(i, cb) {
+                    crowdfundingContract.projectAddresses(i, function(err, addr) {
+                        if (!err) {
+                            crowdfundingContract.getProjectInfo(addr, function(err, info) {
+                                if (!err && info && info.length === 3) {
+                                    var name = "<div>Name: " + info[0] + "</div>";
+                                    var url = "<div>URL: " + info[1] + "</div>";
+                                    var funds = "<div>Funds: " + web3.fromWei(web3.toDecimal(info[2]), 'ether') + "</div>";
+                                    cb(null, addr + name + url + funds);
+                                } else {
+                                    cb(err, "");
+                                }
+                            });
+                        } else {
+                            cb(err, "");
+                        }
+                    });
+                }, function(err, results) {
+                    if (!err) {
+                        cb(null, prefix + data + results.map(function(address) {
+                            return "<div>" + address  + "<br /></div>";
+                        }).join(""));
+                    }
+                });
+            }
+        }
+    });
+}
+
 // refreshData fetches data from the contract and displays it for the user
 function refreshData() {
     console.log('refreshing data');
@@ -51,6 +91,7 @@ function refreshData() {
         function(cb) { parseDate(cb, crowdfundingContract.deadlineProjects, "<b>Proposal Deadline:</b> "); },
         function(cb) { parseDate(cb, crowdfundingContract.deadlineCampaign, "<b>Campaign Deadline:</b> "); },
         function(cb) { parseCurrency(cb, crowdfundingContract.minimumEntryFee, "<b>Minimum Entry Fee:</b> "); },
+        function(cb) { getAyncProjects(cb, crowdfundingContract.numberOfProjects, "<b>Proposals:</b> "); },
     ], function(err, results) {
         if (err) {
             console.error(err);
@@ -71,7 +112,7 @@ $("#contractBtn").click(function() {
     contract.new(entryFee, proposalDeadline, campaignDeadline, {
         from: web3.eth.accounts[0],
         data: code,
-        gas: 4700000, // taken from browser solidity
+        gas: 900000, // taken from browser solidity
     }, function(err, contr) {
         if (err) {
             console.error('there was an error: ' + err);
@@ -90,15 +131,39 @@ $("#contractBtn").click(function() {
 
 $("#submitBtn").click(function() {
     console.log('submitted!');
-    // TODO: implement
+    crowdfundingContract.submitProject.sendTransaction($("#projectName").val(), $("#projectURL").val(), {
+        from: $("#projectAddr").val(),
+        value: web3.toWei($("#entryFeeProject").val(), 'ether'),
+        gas: 600000,
+    }, function(err, data) {
+        console.log(data);
+        if (err) {
+            console.error(err);
+        }
+        refreshData();
+    });
 });
 
 $("#supportBtn").click(function() {
     console.log('supported!');
-    // TODO: implement
+    crowdfundingContract.supportProject.sendTransaction($("#supportAddr").val(), {
+        from: $("#supportFrom").val(),
+        value: web3.toWei($("#supportAmount").val(), 'ether'),
+        gas: 150000,
+    }, function(err, data) {
+        if (err) {
+            console.error(err);
+        }
+        refreshData();
+    });
 });
 
 $("#finishBtn").click(function() {
     console.log('finished!');
-    // TODO: implement
+    crowdfundingContract.finish({from: web3.eth.accounts[0]}, function(err, data) {
+        if (err) {
+            console.error(err);
+        }
+        refreshData();
+    });
 });
